@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLOps | SENATI </title>
+<style>
+:root {
+  --navy:#102a56; --blue:#1769d2; --light:#eef5ff; --ink:#17243a;
+  --muted:#61718a; --green:#16834a; --red:#c43d4b; --border:#d9e3f0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; padding:28px 16px;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  color:var(--ink); background:linear-gradient(135deg,#eaf2ff,#f7f9fc 55%,#e8f1ff);
+}
+.container{max-width:900px;margin:0 auto}
+.header{
+  background:linear-gradient(120deg,#102a56,#1769d2);color:white;
+  padding:28px;border-radius:20px;box-shadow:0 12px 30px #183e7024;
+}
+.eyebrow{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;opacity:.8;font-weight:700}
+h1{margin:9px 0 8px;font-size:clamp(1.65rem,4vw,2.35rem)}
+.header p{margin:0;color:#e3edff;line-height:1.55}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.stat{background:#ffffff1c;border:1px solid #ffffff38;padding:9px 13px;border-radius:10px;font-size:.9rem}
+.panel{background:white;border:1px solid var(--border);border-radius:18px;padding:24px;margin-top:20px;box-shadow:0 8px 24px #183e700d}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-weight:650;font-size:.92rem}
+.progress{height:9px;background:#e8eef7;border-radius:20px;overflow:hidden;margin:13px 0 23px}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#1769d2,#54a3ff);transition:width .25s}
+h2{font-size:1.25rem;line-height:1.5;margin:0 0 20px}
+.options{display:grid;gap:11px}
+.option{
+  width:100%;text-align:left;border:1.5px solid var(--border);background:#fff;
+  border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+  cursor:pointer;color:var(--ink);font:inherit;line-height:1.45;transition:.15s;
+}
+.option:hover:not(:disabled){border-color:var(--blue);background:#f7faff;transform:translateY(-1px)}
+.option:disabled{cursor:default}
+.letter{flex:0 0 29px;height:29px;border-radius:8px;background:#edf3fb;color:#31547f;display:grid;place-items:center;font-weight:800}
+.option.correct{border-color:var(--green);background:#effaf3}
+.option.correct .letter{background:var(--green);color:white}
+.option.incorrect{border-color:var(--red);background:#fff3f3}
+.option.incorrect .letter{background:var(--red);color:white}
+.feedback{display:none;margin-top:18px;padding:17px;border-radius:12px;line-height:1.55}
+.feedback.show{display:block}
+.feedback.good{background:#effaf3;border:1px solid #b8e4c8}
+.feedback.bad{background:#fff4f3;border:1px solid #f0c4c4}
+.feedback strong{display:block;margin-bottom:5px}
+.explanation{margin-top:7px}
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
+button.action{border:0;border-radius:10px;padding:12px 20px;font-weight:750;font-size:.95rem;cursor:pointer}
+.primary{background:var(--blue);color:white}
+.primary:hover{background:#1058b7}
+.secondary{background:#edf2f8;color:#27415f}
+button:disabled{opacity:.45;cursor:not-allowed}
+.note{color:var(--muted);font-size:.88rem;line-height:1.5;margin-top:18px}
+.result{text-align:center;padding:15px 5px}
+.result .score{font-size:3.2rem;font-weight:850;color:var(--blue);margin:10px}
+.result h2{font-size:1.7rem}
+.hidden{display:none}
+@media(max-width:560px){body{padding:14px 10px}.header,.panel{padding:20px}.actions{flex-direction:column}.actions button{width:100%}}
+
+/* Portada institucional */
+.cover{
+  min-height:calc(100vh - 56px); display:flex; align-items:center; justify-content:center;
+  text-align:center; padding:42px 24px; border-radius:24px; overflow:hidden;
+  color:#fff; background:radial-gradient(circle at 15% 15%,#2d75cf 0,transparent 32%),
+  linear-gradient(135deg,#071d43 0%,#103d7c 58%,#0876c9 100%);
+  box-shadow:0 18px 45px #102a5630; position:relative;
+}
+.cover:before,.cover:after{content:"";position:absolute;border:1px solid #ffffff20;border-radius:50%;width:440px;height:440px;right:-170px;top:-210px}
+.cover:after{width:300px;height:300px;right:auto;top:auto;left:-120px;bottom:-160px}
+.cover-content{position:relative;z-index:1;max-width:680px}
+.cover-logo{display:block;width:min(310px,75%);height:auto;margin:0 auto 42px;padding:18px 24px;background:#fff;border-radius:12px}
+.cover-kicker{font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;color:#b9d9ff;font-weight:800}
+.cover h1{font-size:clamp(2.5rem,7vw,4.7rem);line-height:1.05;margin:18px 0}
+.cover-subtitle{font-size:1.12rem;line-height:1.7;color:#e0edff;max-width:590px;margin:0 auto}
+.cover-rule{width:74px;height:4px;background:#ff8b2c;border-radius:8px;margin:28px auto}
+.cover-teacher{font-size:1rem;color:#fff;margin:0 0 28px}
+.start-btn{border:0;border-radius:999px;background:#fff;color:#10417f;padding:15px 30px;font-weight:800;font-size:1rem;cursor:pointer;box-shadow:0 8px 22px #00152f55}
+.start-btn:hover{transform:translateY(-2px);background:#edf5ff}
+.hidden{display:none!important}
+@media(max-width:560px){.cover{min-height:calc(100vh - 28px);padding:28px 18px}.cover-logo{margin-bottom:32px}}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <section class="cover" id="cover">
+    <div class="cover-content">
+      <img class="cover-logo" src="https://commons.wikimedia.org/wiki/Special:FilePath/Senati_Per%C3%BA_logo.svg" alt="Logotipo de SENATI">
+      <div class="cover-kicker">Machine Learning y Deep Learning</div>
+      <h1>Machine Learning<br>y MLOps</h1>
+     
+      <div class="cover-rule"></div>
+      <p class="cover-teacher"><strong>DOCENTE</strong><br>Andrew Torres Ramírez</p>
+      <button class="start-btn" id="startBtn" type="button">Iniciar cuestionario&nbsp; →</button>
+    </div>
+  </section>
+
+  <header class="header">
+    
+    <div class="eyebrow">Machine Learning y Deep Learning</div>
+    <h1>Cuestionario</h1>
+    <p>DOCENTE: Andrew Torres Ramírez</p>
+  </header>
+
+  <main class="panel hidden" id="quizPanel">
+    <div class="topline"><span id="counter">Pregunta 1 de 20</span><span id="scoreLabel">Aciertos: 0</span></div>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="actions">
+      <button class="action secondary" id="restartTop" type="button">Reiniciar</button>
+      <button class="action primary" id="nextBtn" type="button" disabled>Siguiente pregunta</button>
+    </div>
+    <p class="note">Consejo: no te limites a memorizar las herramientas. Identifica qué problema de operación resuelve cada etapa de MLOps.</p>
+  </main>
+
+  <section class="panel result hidden" id="resultPanel">
+    <div class="eyebrow" style="color:#61718a">Resultado final</div>
+    <h2>¡Has completado el cuestionario!</h2>
+    <div class="score" id="finalScore">0/20</div>
+    <p id="resultMessage"></p>
+    <button class="action primary" id="restartBtn" type="button">Volver a intentar</button>
+  </section>
+</div>
+<script>
+const questions = [
+ {q:"¿Cuál es el objetivo principal de MLOps?",a:["Aumentar únicamente la precisión del modelo durante el entrenamiento.","Llevar modelos de Machine Learning a producción y gestionarlos de forma confiable durante su ciclo de vida.","Reemplazar los algoritmos de Machine Learning por reglas de negocio.","Evitar que los modelos necesiten datos después de entrenarse."],c:1,e:"MLOps integra prácticas de Machine Learning, desarrollo y operaciones para desplegar, mantener, reproducir y supervisar modelos en entornos reales. No se limita a entrenarlos."},
+ {q:"Un equipo obtiene 98 % de precisión en un notebook, pero los usuarios no pueden acceder al modelo. ¿Qué aspecto falta principalmente?",a:["La visualización de los datos.","La normalización de todas las variables.","El despliegue del modelo como un servicio accesible.","La eliminación del conjunto de prueba."],c:2,e:"El modelo necesita pasar del entorno experimental a un entorno de producción. Por ejemplo, puede exponerse mediante una API REST para que otras aplicaciones lo consuman."},
+ {q:"¿Qué describe mejor el proceso de Data Validation en un flujo MLOps?",a:["Comprobar que los datos cumplen reglas de calidad, formato, tipos y rangos esperados.","Medir cuántos usuarios visitan la aplicación web.","Convertir automáticamente cualquier modelo en una API.","Elegir el color del panel de monitoreo."],c:0,e:"La validación de datos detecta problemas como columnas faltantes, tipos incorrectos, valores nulos inesperados o rangos inválidos antes de entrenar o ejecutar predicciones."},
+ {q:"¿Para qué se utiliza principalmente MLflow en un proyecto de Machine Learning?",a:["Para diseñar interfaces web responsivas.","Para administrar redes y direcciones IP.","Para sustituir la base de datos de producción.","Para registrar experimentos, parámetros, métricas y artefactos de modelos."],c:3,e:"MLflow permite registrar ejecuciones de entrenamiento, parámetros, métricas y artefactos. Así se pueden comparar experimentos y reproducir resultados."},
+ {q:"Durante varios experimentos, un equipo cambia el algoritmo y los hiperparámetros. ¿Qué debería registrar para comparar correctamente los resultados?",a:["Solo el nombre del desarrollador.","Parámetros, métricas, versión de datos y artefactos relevantes de cada ejecución.","Únicamente la fecha en que se abrió el notebook.","Solo una captura de pantalla del resultado final."],c:1,e:"El seguimiento de experimentos debe guardar información suficiente para saber cómo se obtuvo cada resultado y poder reproducirlo: parámetros, métricas, datos o referencias de datos y artefactos."},
+ {q:"¿Qué función cumple un Model Registry?",a:["Almacenar exclusivamente imágenes que usa la aplicación.","Administrar usuarios y contraseñas del sistema.","Centralizar versiones de modelos y su estado dentro del flujo de publicación.","Reemplazar el monitoreo de rendimiento."],c:2,e:"Un registro de modelos permite organizar versiones, conservar metadatos y controlar estados como candidato, validado o producción, según la plataforma y el flujo del equipo."},
+ {q:"¿Qué ventaja aporta versionar un modelo de Machine Learning?",a:["Permite identificar qué modelo se desplegó y volver a una versión anterior si es necesario.","Garantiza que el modelo nunca cometerá errores.","Elimina la necesidad de validar datos.","Hace que el entrenamiento sea siempre más rápido."],c:0,e:"El versionamiento aporta trazabilidad y facilita comparar, auditar y revertir despliegues cuando una nueva versión presenta problemas."},
+ {q:"Una aplicación web necesita enviar datos a un modelo Python y recibir una predicción. ¿Qué opción es adecuada para exponer el modelo?",a:["Un archivo CSS.","Una hoja de cálculo sin conexión.","Un comentario dentro del código fuente.","Una API REST, por ejemplo construida con FastAPI."],c:3,e:"FastAPI permite crear endpoints HTTP para recibir datos, ejecutar la inferencia y devolver una respuesta estructurada que puede consumir una aplicación web o móvil."},
+ {q:"¿Qué papel cumple Docker en el despliegue de un modelo?",a:["Entrena automáticamente cualquier red neuronal.","Empaqueta la aplicación y sus dependencias en una imagen reproducible.","Garantiza que los datos de entrada sean correctos.","Reemplaza el algoritmo por uno más preciso."],c:1,e:"Docker empaqueta el servicio, sus librerías y configuración en una imagen. Esto ayuda a reducir diferencias entre ambientes de desarrollo, pruebas y producción."},
+ {q:"¿Cuál es una diferencia central entre DevOps y MLOps?",a:["DevOps se aplica solo a bases de datos y MLOps solo a páginas web.","Son exactamente lo mismo y gestionan los mismos artefactos.","MLOps también debe considerar datos, experimentos, modelos y cambios en su comportamiento.","MLOps elimina la integración y entrega continuas."],c:2,e:"MLOps amplía prácticas de DevOps al ciclo de vida de Machine Learning. Además del código, debe gestionar datos, modelos, experimentos, validación y monitoreo del comportamiento predictivo."},
+ {q:"Un modelo se entrenó con imágenes tomadas de día. Meses después, recibe imágenes nocturnas y sus predicciones empeoran. ¿Qué fenómeno puede estar ocurriendo?",a:["Data drift: la distribución de los datos de entrada cambió respecto a la referencia.","Un error de sintaxis en CSS.","Un aumento automático de la memoria RAM.","Una actualización del sistema operativo sin relación con los datos."],c:0,e:"Data drift ocurre cuando cambia la distribución de los datos de entrada. Las imágenes nocturnas pueden tener características distintas a las imágenes diurnas usadas durante el entrenamiento."},
+ {q:"¿Qué se entiende por Model Drift o concept drift en el contexto operativo?",a:["Que el archivo del modelo cambió de nombre.","Que el servidor dejó de responder por falta de internet.","Que el modelo ocupa más espacio en disco.","Que la relación entre las entradas y el resultado esperado cambia y el modelo pierde desempeño."],c:3,e:"El concept drift se refiere a cambios en la relación que el modelo intenta aprender, por ejemplo cuando cambian los patrones de fraude. En la práctica puede reflejarse en una caída del rendimiento."},
+ {q:"¿Qué debería hacer un sistema de monitoreo de un modelo desplegado?",a:["Reentrenar el modelo cada minuto sin revisar resultados.","Observar métricas como latencia, errores, volumen de solicitudes y calidad de predicciones cuando haya etiquetas.","Mostrar únicamente el nombre del algoritmo.","Eliminar los registros después de cada predicción."],c:1,e:"El monitoreo debe cubrir la salud del servicio y el comportamiento del modelo: latencia, disponibilidad, errores, distribución de entradas y métricas de calidad cuando se dispone de resultados reales."},
+ {q:"Un detector de fraude comienza a clasificar como legítimas muchas transacciones fraudulentas. ¿Qué indicador ayuda directamente a medir ese problema?",a:["El tamaño del archivo Docker.","La cantidad de colores del dashboard.","El recall de la clase fraude, junto con otras métricas relevantes.","El número de líneas del código Python."],c:2,e:"El recall de la clase fraude mide qué proporción de los fraudes reales logra detectar el modelo. Un recall bajo indica muchos falsos negativos. También conviene revisar precisión y matriz de confusión."},
+ {q:"¿Por qué no basta con medir la precisión del modelo solo durante el entrenamiento?",a:["Porque el entorno real y los datos pueden cambiar, y el rendimiento debe supervisarse después del despliegue.","Porque la precisión solo se calcula en aplicaciones móviles.","Porque los modelos desplegados ya no generan predicciones.","Porque el entrenamiento no utiliza datos."],c:0,e:"El desempeño medido durante el entrenamiento no garantiza el mismo resultado en producción. Los datos, usuarios y patrones pueden cambiar, por eso se necesita monitoreo continuo."},
+ {q:"En una arquitectura MLOps, ¿qué secuencia representa mejor un flujo básico desde los datos hasta producción?",a:["Despliegue → recopilación → entrenamiento → validación.","Monitoreo → eliminación de datos → despliegue → entrenamiento.","Entrenamiento → eliminación del modelo → recopilación → predicción.","Validación de datos → entrenamiento y seguimiento → registro del modelo → despliegue → monitoreo."],c:3,e:"Primero se comprueba la calidad de los datos, luego se entrena y registra el experimento/modelo, se publica una versión y finalmente se monitorea su operación. Los flujos reales pueden incluir iteraciones y etapas adicionales."},
+ {q:"Una nueva versión del modelo presenta mayor latencia y peores resultados que la versión anterior. ¿Qué práctica ayuda a reducir el impacto en producción?",a:["Borrar la versión anterior inmediatamente.","Mantener versiones controladas y permitir volver a una versión estable.","Desactivar todos los registros de monitoreo.","Cambiar el nombre del endpoint sin evaluar el modelo."],c:1,e:"El versionamiento y una estrategia de despliegue con posibilidad de rollback permiten regresar a una versión estable mientras se investiga el problema."},
+ {q:"¿Qué función puede cumplir GitHub Actions en un flujo MLOps?",a:["Reemplazar a Python en la inferencia.","Etiquetar automáticamente los datos sin reglas.","Automatizar tareas como pruebas, validaciones y construcción o publicación de imágenes.","Garantizar que no exista data drift."],c:2,e:"GitHub Actions permite definir flujos de CI/CD que ejecutan pruebas y tareas automatizadas ante cambios en el repositorio. No elimina la necesidad de evaluar datos y modelos."},
+ {q:"¿Cuál es el propósito de exponer un modelo mediante un endpoint /predict?",a:["Recibir una entrada, ejecutar la inferencia y devolver la predicción al consumidor.","Entrenar obligatoriamente el modelo desde cero en cada solicitud.","Mostrar el código fuente del modelo al usuario.","Guardar contraseñas de los clientes en el modelo."],c:0,e:"Un endpoint de predicción recibe datos mediante una solicitud, aplica el preprocesamiento necesario, ejecuta la inferencia y responde con el resultado, normalmente en JSON."},
+ {q:"Una clínica quiere usar un modelo que priorice solicitudes de atención. ¿Qué conjunto de prácticas es más responsable para llevarlo a producción?",a:["Desplegar el primer modelo entrenado y no registrar sus resultados.","Usar solo el accuracy inicial como garantía permanente.","Permitir que el modelo cambie decisiones sin supervisión ni trazabilidad.","Validar datos, evaluar errores por tipo de caso, versionar el modelo, monitorear y mantener supervisión humana adecuada."],c:3,e:"En un contexto sensible se requiere trazabilidad, evaluación cuidadosa, monitoreo y supervisión humana. El modelo debe apoyar el proceso, no asumirse infalible ni sustituir automáticamente el criterio profesional."}
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+const $ = id => document.getElementById(id);
+
+function renderQuestion(){
+  answered = false;
+  const item = questions[current];
+  $("counter").textContent = `Pregunta ${current+1} de ${questions.length}`;
+  $("scoreLabel").textContent = `Aciertos: ${score}`;
+  $("progressBar").style.width = `${(current/questions.length)*100}%`;
+  $("question").textContent = item.q;
+  $("options").innerHTML = "";
+  $("feedback").className = "feedback";
+  $("feedback").innerHTML = "";
+  $("nextBtn").disabled = true;
+  $("nextBtn").textContent = current === questions.length-1 ? "Ver resultado" : "Siguiente pregunta";
+  item.a.forEach((answer,index)=>{
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "option";
+    button.innerHTML = `<span class="letter">${String.fromCharCode(65+index)}</span><span></span>`;
+    button.querySelector("span:last-child").textContent = answer;
+    button.addEventListener("click",()=>selectAnswer(index));
+    $("options").appendChild(button);
+  });
+}
+function selectAnswer(index){
+  if(answered) return;
+  answered = true;
+  const item = questions[current];
+  const buttons = [...$("options").children];
+  buttons.forEach((button,i)=>{
+    button.disabled = true;
+    if(i === item.c) button.classList.add("correct");
+    if(i === index && index !== item.c) button.classList.add("incorrect");
+  });
+  const correct = index === item.c;
+  if(correct) score++;
+  $("scoreLabel").textContent = `Aciertos: ${score}`;
+  const feedback = $("feedback");
+  feedback.className = `feedback show ${correct ? "good" : "bad"}`;
+  feedback.innerHTML = `<strong>${correct ? "¡Respuesta correcta!" : "Respuesta incorrecta."}</strong><div>${correct ? "Has identificado la alternativa adecuada." : `La respuesta correcta es: ${String.fromCharCode(65+item.c)}. ${escapeHtml(item.a[item.c])}`}</div><div class="explanation"><b>¿Por qué?</b> ${escapeHtml(item.e)}</div>`;
+  $("nextBtn").disabled = false;
+  $("progressBar").style.width = `${((current+1)/questions.length)*100}%`;
+}
+function escapeHtml(text){
+  return text.replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
+}
+function nextQuestion(){
+  if(!answered) return;
+  if(current < questions.length-1){
+    current++;
+    renderQuestion();
+  }else{
+    $("quizPanel").classList.add("hidden");
+    $("resultPanel").classList.remove("hidden");
+    $("finalScore").textContent = `${score}/${questions.length}`;
+    const pct = score/questions.length*100;
+    $("resultMessage").textContent = pct >= 90 ? "Excelente dominio de MLOps. ¡Estás listo para explicar cómo llevar modelos a producción!" :
+      pct >= 70 ? "Buen trabajo. Repasa las explicaciones de las preguntas que fallaste para reforzar los conceptos." :
+      pct >= 50 ? "Vas avanzando. Te recomendamos repasar el ciclo MLOps, el monitoreo y el versionamiento." :
+      "Conviene volver a revisar la clase de MLOps y luego intentar nuevamente. ¡Puedes mejorar!";
+  }
+}
+function restart(){
+  current=0; score=0;
+  $("resultPanel").classList.add("hidden");
+  $("quizPanel").classList.remove("hidden");
+  renderQuestion();
+}
+$("startBtn").addEventListener("click",()=>{$("cover").classList.add("hidden");$("quizPanel").classList.remove("hidden");});
+$("nextBtn").addEventListener("click",nextQuestion);
+$("restartTop").addEventListener("click",restart);
+$("restartBtn").addEventListener("click",restart);
+renderQuestion();
+</script>
+</body>
+</html>
